@@ -290,7 +290,7 @@ def procesar_archivo(ruta_entrada, anio):
 
     # Selecciono las columnas del DF
     # Selecciono las columnas del DF y devolvemos el DF
-    cols = ["anio", "edad", "sexo", "tiene_cobertura", "cantidad", "id_prov", "provincia", "nombre_cobertura", "tipo_cobertura"]
+    cols = ["anio", "edad", "sexo",  "tiene_cobertura","tipo_cobertura",  "id_prov", "cantidad"]
     df_final = df_final[cols]
     
     return df_final
