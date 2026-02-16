@@ -137,7 +137,7 @@ consultaSQL_eliminar_edad_indef = """
 dataframeResultado_filtrado = dd.query(consultaSQL_eliminar_edad_indef).df()
 
 # lo guardo como CSV
-ruta_salida = os.path.join(directorio_script, "defuncion.csv")
+ruta_salida = os.path.join(directorio_script, "Defuncion.csv")
 dataframeResultado_filtrado.to_csv(ruta_salida, index=False)
 
 #%%
@@ -157,7 +157,7 @@ consultaSQL_eliminar_provincias_indet = """
 dataframeResultado_provincias = dd.query(consultaSQL_eliminar_provincias_indet).df()
 
 #guardo en CSV
-ruta_salida = os.path.join(directorio_script, "provincia.csv")
+ruta_salida = os.path.join(directorio_script, "Provincia.csv")
 dataframeResultado_provincias.to_csv(ruta_salida, index=False)
 
 #%%
@@ -273,6 +273,12 @@ def procesar_archivo(ruta_entrada, anio):
             if cobertura_actual == "Obra social (incluye PAMI)":
                 tipo_cobertura = "Público"
 
+            if cobertura_actual == "Obra social o prepaga (incluye PAMI)":
+                tipo_cobertura = "Mixto"
+            
+            if cobertura_actual == "No tiene obra social, prepaga ni plan estatal":
+                tipo_cobertura = "No tiene cobertura"
+
             if cobertura_actual == "Prepaga sólo por contratación voluntaria":
                 tipo_cobertura = "Privado"
 
@@ -343,7 +349,7 @@ consultaSQL = """
 poblacion = dd.query(consultaSQL).df()
 
 # Guardo el resultado final en un CSV
-ruta_salida = os.path.join(directorio_script, "poblacion.csv")
+ruta_salida = os.path.join(directorio_script, "Poblacion.csv")
 poblacion.to_csv(ruta_salida, index=False)
 
 #%%
@@ -402,12 +408,12 @@ FROM df_valido
 
 df_valido = dd.query(consultaSQL).df()
 
-df_valido.to_csv("establecimiento.csv", index=False)
+df_valido.to_csv("Establecimiento.csv", index=False)
 
 # %%
 # Tabla Departamento
 # Veo la tabla de provincias para filtrar
-ruta_provincia = os.path.join(directorio_script, "provincia.csv")
+ruta_provincia = os.path.join(directorio_script, "Provincia.csv")
 
 df_provincia = pd.read_csv(ruta_provincia)
 
@@ -419,4 +425,4 @@ consultaSQL_depto = """
                 """
 
 df_depto = dd.query(consultaSQL_depto).df()
-df_depto.to_csv(os.path.join(directorio_script, "departamento.csv"), index=False)
+df_depto.to_csv(os.path.join(directorio_script, "Departamento.csv"), index=False)
