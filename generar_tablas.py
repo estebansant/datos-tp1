@@ -18,7 +18,7 @@ print(defunciones)
 consultaSQL = """
                 SELECT cie10_causa_id, jurisdiccion_de_residencia_id, anio, sexo_id, cantidad,
                 CASE
-                WHEN grupo_edad LIKE '%01.De a 0  a 14%' THEN '0 a 14'
+                WHEN grupo_edad LIKE '%01.De 0 a 14%' THEN '0 a 14'
                 WHEN grupo_edad LIKE '%02.De 15 a 34%' THEN '15 a 34'
                 WHEN grupo_edad LIKE '%03.De 35 a 54 anios%' THEN '35 a 54'
                 WHEN grupo_edad LIKE '%04.De 55 a 74 anios%' THEN '55 a 74'
@@ -34,7 +34,6 @@ dataframeResultado = dd.query(consultaSQL).df()
 consultaSQL_residencia= """
                SELECT DISTINCT jurisdicion_residencia_nombre, jurisdiccion_de_residencia_id
                FROM defunciones
-
                  """
 
 #jurisdicciones
@@ -185,6 +184,7 @@ def procesar_archivo(ruta_entrada, anio):
         
         # Extraigo valores de las celdas
         val_texto = str(row[1]) if pd.notna(row[1]) else ""
+
         val_edad_prov = row[2]
         val_varones = row[3]
         val_mujeres = row[4]
@@ -210,19 +210,35 @@ def procesar_archivo(ruta_entrada, anio):
              cobertura_actual = val_texto.strip()
              continue
         
-        # Ignoro el nombre de la columna
-        if "cobertura de salud" in texto_lower and "no tiene" not in texto_lower:
-            continue
+        if "total" in val_texto.strip().lower():
+             cobertura_actual = "Total"
+             continue
+
+        # Ignoro el nombre de la columna de cobertura Total
+        if "cobertura de salud" in texto_lower:
+             continue
             
+        # Si la cobertura actual es Total, ignoro todo el bloque de datos
+        if cobertura_actual == "Total":
+            continue
+
         # Edad
-        # Verificamos si es una fila de datos. La edad debe ser un numero
-        if provincia_actual and cobertura_actual:
+        if (provincia_actual and cobertura_actual) and (cobertura_actual != "Total"):
             if pd.isna(val_edad_prov):
                 continue
 
             # Convierto a string para verificar contenido
             s_edad = str(val_edad_prov).strip()
             
+            # Chequeo si la celda esta vacia
+            if not s_edad:
+                continue
+            
+            # Me aseguro de no agarrar la fila con el total de hombres y mujeres con el mismo tipo de cobertura social
+            if "total" in s_edad.lower():
+                continue
+
+            # Si la edad no es un digito no lo agarro
             if not s_edad.replace('.0', '').isdigit():
                 continue
             
@@ -230,6 +246,10 @@ def procesar_archivo(ruta_entrada, anio):
             
             # Funcion para limpiar el numero de varones y mujeres
             def limpiar_cantidad(val):
+                # Filtro para que no agarre la ultima fila del archivo (posible total general)
+                if i == len(df_raw) - 1:
+                    return 0
+
                 if pd.isna(val): return 0
                 s = str(val).strip()
                 if s == '-' or s == '': return 0
@@ -289,6 +309,21 @@ def procesar_archivo(ruta_entrada, anio):
     df_final = pd.DataFrame(datos_limpios)
 
     # Selecciono las columnas del DF
+    
+    # Agrupo por rango etario usando SQL
+    consultaSQL_rango_etario = """
+        SELECT anio, sexo, tiene_cobertura, tipo_cobertura, id_prov, cantidad,
+        CASE
+        WHEN edad BETWEEN 0 AND 14 THEN '01.De a 0  a 14 anios'
+        WHEN edad BETWEEN 15 AND 34 THEN '02.De 15 a 34 anios'
+        WHEN edad BETWEEN 35 AND 54 THEN '03.De 35 a 54 anios'
+        WHEN edad BETWEEN 55 AND 74 THEN '04.De 55 a 74 anios'
+        WHEN edad >= 75 THEN '05.De 75 anios y mas'
+        END AS edad
+        FROM df_final
+    """
+    df_final = dd.query(consultaSQL_rango_etario).df()
+
     # Selecciono las columnas del DF y devolvemos el DF
     cols = ["anio", "edad", "sexo",  "tiene_cobertura","tipo_cobertura",  "id_prov", "cantidad"]
     df_final = df_final[cols]
@@ -300,10 +335,10 @@ censo2022 = procesar_archivo(ruta_2022, 2022)
 
 # Unimos las tablas censo2010 y censo2022 con SQL usando DuckDB
 consultaSQL = """
-SELECT * FROM censo2010 
-UNION ALL 
-SELECT * FROM censo2022
-"""
+            SELECT * FROM censo2010 
+            UNION ALL 
+            SELECT * FROM censo2022
+        """
 
 poblacion = dd.query(consultaSQL).df()
 
