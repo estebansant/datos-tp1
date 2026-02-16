@@ -64,3 +64,21 @@ FROM df_valido
 df_valido = dd.query(consultaSQL).df()
 
 df_valido.to_csv("establecimiento.csv", index=False)
+
+# %%
+# Tabla Departamento
+# Leemos la tabla de provincias para filtrar
+ruta_provincia = os.path.join(directorio_script, "provincia.csv")
+
+df_provincia = pd.read_csv(ruta_provincia)
+
+consultaSQL_depto = """
+SELECT DISTINCT id_depto, id_prov, nombre_depto as nombre
+FROM df
+WHERE id_prov IN (SELECT id_prov FROM df_provincia)
+ORDER BY id_prov, id_depto
+"""
+
+df_depto = dd.query(consultaSQL_depto).df()
+df_depto.to_csv(os.path.join(directorio_script, "departamento.csv"), index=False)
+
