@@ -7,7 +7,7 @@ Created on Mon Feb 16 18:06:37 2026
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-archivo= 'poblacion.csv'
+archivo= 'Poblacion.csv'
 
 df = pd.read_csv(archivo)
 
@@ -52,5 +52,6 @@ plt.ylabel('Provincia')
 
 plt.tight_layout()
 plt.show()
+
 
 
