@@ -1,4 +1,4 @@
-anio,edad,sexo,tiene_cobertura,tipo_cobertura,id_prov,cantidad
+anio,rango_etario,sexo,tiene_cobertura,tipo_cobertura,id_prov,cantidad
 2010,01.De a 0  a 14 anios,Varón,1,Público,2,5906
 2010,01.De a 0  a 14 anios,Mujer,1,Público,2,5544
 2010,01.De a 0  a 14 anios,Varón,1,Público,2,5229

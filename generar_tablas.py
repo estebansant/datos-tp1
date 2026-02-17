@@ -325,13 +325,13 @@ def procesar_archivo(ruta_entrada, anio):
         WHEN edad BETWEEN 35 AND 54 THEN '03.De 35 a 54 anios'
         WHEN edad BETWEEN 55 AND 74 THEN '04.De 55 a 74 anios'
         WHEN edad >= 75 THEN '05.De 75 anios y mas'
-        END AS edad
+        END AS rango_etario
         FROM df_final
     """
     df_final = dd.query(consultaSQL_rango_etario).df()
 
     # Selecciono las columnas del DF y devolvemos el DF
-    cols = ["anio", "edad", "sexo",  "tiene_cobertura","tipo_cobertura",  "id_prov", "cantidad"]
+    cols = ["anio", "rango_etario", "sexo",  "tiene_cobertura","tipo_cobertura",  "id_prov", "cantidad"]
     df_final = df_final[cols]
     
     return df_final
