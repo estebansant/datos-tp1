@@ -21,11 +21,53 @@ poblacion = pd.read_csv(archivo_poblacion)
 
 #%%
 
-consultaSQL_provId = """
-                    SELECT * 
-                    FROM poblacion
-                    NATURAL JOIN provincias;
-                    """
-                    
-dataframeResultado = dd.query(consultaSQL_provId).df()
-print(dataframeResultado)
+
+consultaSQL = """
+            SELECT pr.nombre AS Provincia,
+            
+            CASE WHEN p.rango_etario LIKE '01%'
+                THEN '0 a 14'
+            WHEN p.rango_etario LIKE '02%'
+                THEN '15 a 34'
+            WHEN p.rango_etario LIKE '03%' 
+                THEN '35 a 54'
+            WHEN p.rango_etario LIKE '04%' 
+                THEN '55 a 74'
+            WHEN p.rango_etario LIKE '05%'
+                THEN '75 y más'
+            ELSE p.rango_etario
+            
+            END AS "Grupo etario",
+
+            SUM(CASE WHEN p.anio = 2010 AND p.tiene_cobertura = 1 
+                THEN p.cantidad
+                ELSE 0 
+            END) AS "Habitantes con cobertura en 2010",
+
+            SUM(CASE WHEN p.anio = 2010 AND p.tiene_cobertura = 0 
+                THEN p.cantidad
+                ELSE 0 
+            END) AS "Habitantes sin cobertura en 2010",
+
+            SUM(CASE WHEN p.anio = 2022 AND p.tiene_cobertura = 1 
+                THEN p.cantidad
+                ELSE 0 
+            END) AS "Habitantes con cobertura en 2022",
+
+            SUM(CASE WHEN p.anio = 2022 AND p.tiene_cobertura = 0 
+                THEN p.cantidad
+                ELSE 0 
+            END) AS "Habitantes sin cobertura en 2022"
+
+            FROM poblacion AS p
+
+            INNER JOIN provincias AS pr
+            ON p.id_prov = pr.id_prov
+            GROUP BY pr.nombre, "Grupo etario"
+            ORDER BY pr.nombre, "Grupo etario";
+"""
+
+
+dataframeResultado = dd.query(consultaSQL).df()
+
+dataframeResultado.to_csv(os.path.join(directorio_script, "CoberturaDeSalud.csv"), index=False)
