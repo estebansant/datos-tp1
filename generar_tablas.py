@@ -189,6 +189,13 @@ def procesar_archivo(ruta_entrada, anio):
         val_varones = row[3]
         val_mujeres = row[4]
         
+        if "RESUMEN" in val_texto.upper():
+            provincia_actual = "RESUMEN"
+            continue
+
+        if provincia_actual == "RESUMEN":
+            continue
+
         # Provincia
         # Busco "AREA #"
         if "AREA #" in val_texto:
