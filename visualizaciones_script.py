@@ -13,7 +13,7 @@ df = pd.read_csv(archivo)
 
 
 # Unificamos los nombres de CABA para que el gráfico no los separe
-df['provincia'] = df['provincia'].replace({
+df['id_prov'] = df['id_prov'].replace({
 'Ciudad Autónoma de Buenos Aires': 'CABA',
 'Caba': 'CABA'
 })
@@ -21,7 +21,7 @@ df['provincia'] = df['provincia'].replace({
 
 # Agrupamos por provincia y año para obtener el total de habitantes
 # Se aplica un factor de corrección de 0.5 si los datos están duplicados por categoría
-df_agrupado = df.groupby(['provincia', 'anio'])['cantidad'].sum().reset_index()
+df_agrupado = df.groupby(['id_prov', 'anio'])['cantidad'].sum().reset_index()
 
 
 
@@ -36,7 +36,7 @@ orden = df_agrupado[df_agrupado['anio'] == 2022].sort_values('cantidad', ascendi
 # Generamos el gráfico de barras horizontales agrupadas por año (hue)
 sns.barplot(
 data=df_agrupado,
-y='provincia',
+y='id_prov',
 x='cantidad',
 hue='anio',
 order=orden,
@@ -52,6 +52,5 @@ plt.ylabel('Provincia')
 
 plt.tight_layout()
 plt.show()
-
 
 
