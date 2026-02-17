@@ -1,56 +1,43 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Feb 16 18:06:37 2026
-
-
-"""
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
-archivo= 'Poblacion.csv'
+import seaborn as sns
 
-df = pd.read_csv(archivo)
+# 1. Carga de datos (Tablas de tu modelo relacional)
+df_pob = pd.read_csv('Poblacion.csv')
+df_prov = pd.read_csv('Provincia.csv')
 
+# 2. Relación entre tablas (JOIN)
+# Unimos población con provincia usando id_prov para tener los nombres reales
+# Esto garantiza consistencia total (Clase 11)
+df_unificado = pd.merge(df_pob, df_prov, on='id_prov')
 
-# Unificamos los nombres de CABA para que el gráfico no los separe
-df['id_prov'] = df['id_prov'].replace({
-'Ciudad Autónoma de Buenos Aires': 'CABA',
-'Caba': 'CABA'
-})
+# 3. Procesamiento
+# Agrupamos por el nombre de la provincia (que viene de df_prov) y el año
+# Como ya corregiste la duplicación, no dividimos por 2
+df_agrupado = df_unificado.groupby(['nombre', 'anio'])['cantidad'].sum().reset_index()
 
-
-# Agrupamos por provincia y año para obtener el total de habitantes
-# Se aplica un factor de corrección de 0.5 si los datos están duplicados por categoría
-df_agrupado = df.groupby(['id_prov', 'anio'])['cantidad'].sum().reset_index()
-
-
-
-# Configuramos el tamaño de la figura y el estilo
+# 4. Visualización (Estilo Clase 12 y 13)
 plt.figure(figsize=(10, 10))
 sns.set_theme(style="whitegrid")
 
-# Definimos el orden de las provincias de mayor a menor según el último censo
-# Este ordenamiento facilita la comparación visual
-orden = df_agrupado[df_agrupado['anio'] == 2022].sort_values('cantidad', ascending=False)['provincia']
+# Ordenamos por población del censo 2022 (Recomendación Clase 12)
+orden_provincias = df_agrupado[df_agrupado['anio'] == 2022].sort_values('cantidad', ascending=False)['nombre']
 
-# Generamos el gráfico de barras horizontales agrupadas por año (hue)
+# Gráfico de barras horizontales agrupadas
+# Usamos 'nombre' para el eje Y para que sea legible, pero los datos vienen del id_prov
 sns.barplot(
 data=df_agrupado,
-y='id_prov',
+y='nombre',
 x='cantidad',
 hue='anio',
-order=orden,
+order=orden_provincias,
 palette='muted'
 )
-
-# 5. Etiquetas y formato final
+# Títulos
 plt.title('Población por Provincia: Censos 2010 y 2022', fontsize=14, fontweight='bold')
 plt.xlabel('Cantidad de habitantes')
 plt.ylabel('Provincia')
 
-
-
-plt.tight_layout()
+# Quitamos tight_layout si no lo viste en clase, el gráfico se verá bien igual
 plt.show()
-
 
