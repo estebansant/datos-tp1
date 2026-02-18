@@ -1,0 +1,51 @@
+Grupo Etario,Sexo,Causa de Muerte,Número de Defunciones
+0 a 14,femenino,Trastornos mentales,30.0
+0 a 14,femenino,"Embarazo, parto y puerperio ",34.0
+0 a 14,femenino,Enfermedades de la piel y del tejido subcutáneo ,46.0
+0 a 14,femenino,COVID-19,160.0
+0 a 14,femenino,Enfermedades del sistema osteomuscular y del tejido conjuntivo,171.0
+0 a 14,masculino,Trastornos mentales,15.0
+0 a 14,masculino,Enfermedades de la piel y del tejido subcutáneo ,56.0
+0 a 14,masculino,Enfermedades del sistema osteomuscular y del tejido conjuntivo,113.0
+0 a 14,masculino,COVID-19,153.0
+0 a 14,masculino,Enfermedades del sistema genitourinario ,415.0
+15 a 34,femenino,Trastornos mentales,133.0
+15 a 34,femenino,Enfermedades de la piel y del tejido subcutáneo ,263.0
+15 a 34,femenino,"Enfermedades de la sangre y de los órganos hematopoyéticos, y ciertos trastornos que afectan al mecanismo de la inmunidad ",525.0
+15 a 34,femenino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",719.0
+15 a 34,femenino,Enfermedades del sistema osteomuscular y del tejido conjuntivo,1002.0
+15 a 34,masculino,Enfermedades de la piel y del tejido subcutáneo ,268.0
+15 a 34,masculino,Enfermedades del sistema osteomuscular y del tejido conjuntivo,334.0
+15 a 34,masculino,Trastornos mentales,377.0
+15 a 34,masculino,"Enfermedades de la sangre y de los órganos hematopoyéticos, y ciertos trastornos que afectan al mecanismo de la inmunidad ",551.0
+15 a 34,masculino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",915.0
+35 a 54,femenino,Trastornos mentales,441.0
+35 a 54,femenino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",461.0
+35 a 54,femenino,Enfermedades de la piel y del tejido subcutáneo ,864.0
+35 a 54,femenino,"Enfermedades de la sangre y de los órganos hematopoyéticos, y ciertos trastornos que afectan al mecanismo de la inmunidad ",1095.0
+35 a 54,femenino,"Embarazo, parto y puerperio ",1582.0
+35 a 54,masculino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",443.0
+35 a 54,masculino,Enfermedades del sistema osteomuscular y del tejido conjuntivo,818.0
+35 a 54,masculino,Enfermedades de la piel y del tejido subcutáneo ,1016.0
+35 a 54,masculino,"Enfermedades de la sangre y de los órganos hematopoyéticos, y ciertos trastornos que afectan al mecanismo de la inmunidad ",1048.0
+35 a 54,masculino,Trastornos mentales,2973.0
+55 a 74,femenino,"Embarazo, parto y puerperio ",2.0
+55 a 74,femenino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",405.0
+55 a 74,femenino,Trastornos mentales,2365.0
+55 a 74,femenino,"Enfermedades de la sangre y de los órganos hematopoyéticos, y ciertos trastornos que afectan al mecanismo de la inmunidad ",2997.0
+55 a 74,femenino,Enfermedades de la piel y del tejido subcutáneo ,3896.0
+55 a 74,masculino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",408.0
+55 a 74,masculino,Enfermedades del sistema osteomuscular y del tejido conjuntivo,2279.0
+55 a 74,masculino,"Enfermedades de la sangre y de los órganos hematopoyéticos, y ciertos trastornos que afectan al mecanismo de la inmunidad ",3078.0
+55 a 74,masculino,Enfermedades de la piel y del tejido subcutáneo ,4549.0
+55 a 74,masculino,Trastornos mentales,6628.0
+75 y mas,femenino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",225.0
+75 y mas,femenino,Enfermedades del sistema osteomuscular y del tejido conjuntivo,4963.0
+75 y mas,femenino,"Enfermedades de la sangre y de los órganos hematopoyéticos, y ciertos trastornos que afectan al mecanismo de la inmunidad ",7611.0
+75 y mas,femenino,Enfermedades de la piel y del tejido subcutáneo ,16590.0
+75 y mas,femenino,Trastornos mentales,22996.0
+75 y mas,masculino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",164.0
+75 y mas,masculino,Enfermedades del sistema osteomuscular y del tejido conjuntivo,1960.0
+75 y mas,masculino,"Enfermedades de la sangre y de los órganos hematopoyéticos, y ciertos trastornos que afectan al mecanismo de la inmunidad ",4686.0
+75 y mas,masculino,Enfermedades de la piel y del tejido subcutáneo ,7097.0
+75 y mas,masculino,Trastornos mentales,10793.0

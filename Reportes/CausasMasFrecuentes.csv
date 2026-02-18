@@ -1,0 +1,51 @@
+Grupo Etario,Sexo,Causa de Muerte,Número de Defunciones
+0 a 14,femenino,Afecciones originadas en el periodo perinatal ,28387.0
+0 a 14,femenino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",18447.0
+0 a 14,femenino,Accidentes y causas externas,8073.0
+0 a 14,femenino,Enfermedades del aparato respiratorio,6703.0
+0 a 14,femenino,"Síntomas, signos y hallazgos anormales clínicos y de laboratorio, no clasificados en otra parte",4458.0
+0 a 14,masculino,Afecciones originadas en el periodo perinatal ,38857.0
+0 a 14,masculino,"Malformaciones congénitas, deformidades y anomalías cromosómicas ",20970.0
+0 a 14,masculino,Accidentes y causas externas,12549.0
+0 a 14,masculino,Enfermedades del aparato respiratorio,8083.0
+0 a 14,masculino,"Síntomas, signos y hallazgos anormales clínicos y de laboratorio, no clasificados en otra parte",5935.0
+15 a 34,femenino,Accidentes y causas externas,20809.0
+15 a 34,femenino,Tumores ,12444.0
+15 a 34,femenino,Enfermedades del aparato circulatorio,5935.0
+15 a 34,femenino,Enfermedades del aparato respiratorio,5927.0
+15 a 34,femenino,Enfermedades infecciosas y parasitarias ,4475.0
+15 a 34,masculino,Accidentes y causas externas,103290.0
+15 a 34,masculino,Tumores ,12523.0
+15 a 34,masculino,Enfermedades del aparato circulatorio,9781.0
+15 a 34,masculino,Enfermedades del aparato respiratorio,8650.0
+15 a 34,masculino,Enfermedades infecciosas y parasitarias ,7302.0
+35 a 54,femenino,Tumores ,79902.0
+35 a 54,femenino,Enfermedades del aparato circulatorio,33082.0
+35 a 54,femenino,Enfermedades del aparato respiratorio,17945.0
+35 a 54,femenino,Accidentes y causas externas,15012.0
+35 a 54,femenino,Enfermedades infecciosas y parasitarias ,11957.0
+35 a 54,masculino,Enfermedades del aparato circulatorio,72577.0
+35 a 54,masculino,Accidentes y causas externas,61455.0
+35 a 54,masculino,Tumores ,60999.0
+35 a 54,masculino,Enfermedades del aparato respiratorio,28291.0
+35 a 54,masculino,Enfermedades del aparato digestivo,27496.0
+55 a 74,femenino,Tumores ,225785.0
+55 a 74,femenino,Enfermedades del aparato circulatorio,180910.0
+55 a 74,femenino,Enfermedades del aparato respiratorio,96937.0
+55 a 74,femenino,"Síntomas, signos y hallazgos anormales clínicos y de laboratorio, no clasificados en otra parte",44586.0
+55 a 74,femenino,"Enfermedades endocrinas, nutricionales y metabólicas ",35330.0
+55 a 74,masculino,Enfermedades del aparato circulatorio,337439.0
+55 a 74,masculino,Tumores ,292572.0
+55 a 74,masculino,Enfermedades del aparato respiratorio,153672.0
+55 a 74,masculino,"Síntomas, signos y hallazgos anormales clínicos y de laboratorio, no clasificados en otra parte",80567.0
+55 a 74,masculino,Enfermedades del aparato digestivo,72788.0
+75 y mas,femenino,Enfermedades del aparato circulatorio,645713.0
+75 y mas,femenino,Enfermedades del aparato respiratorio,367873.0
+75 y mas,femenino,Tumores ,209190.0
+75 y mas,femenino,"Síntomas, signos y hallazgos anormales clínicos y de laboratorio, no clasificados en otra parte",148907.0
+75 y mas,femenino,Enfermedades infecciosas y parasitarias ,74039.0
+75 y mas,masculino,Enfermedades del aparato circulatorio,431717.0
+75 y mas,masculino,Enfermedades del aparato respiratorio,274167.0
+75 y mas,masculino,Tumores ,211482.0
+75 y mas,masculino,"Síntomas, signos y hallazgos anormales clínicos y de laboratorio, no clasificados en otra parte",100298.0
+75 y mas,masculino,Enfermedades del sistema genitourinario ,58024.0

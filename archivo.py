@@ -10,7 +10,6 @@ Luego se procede a realizar graficos relevantes que aporten un nuevo punto de vi
 #%%
 import pandas as pd
 import os
-import numpy as np 
 import duckdb as dd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -24,7 +23,6 @@ defunciones2 = pd.read_csv(archivo2)
 
 #%%
 # Empiezo a filtrar la tabla de defunciones por rango etario
-print(defunciones)
 
 consultaSQL = """
                 SELECT cie10_causa_id, jurisdiccion_de_residencia_id, anio, sexo_id, cantidad,
@@ -95,15 +93,6 @@ desconocido_e_indefinido = ((dataframeResultado_join_causas["id_prov"] == 98) & 
 desconocido_e_indefinido2 = ((dataframeResultado_join_causas["id_prov"] == 99) & ((dataframeResultado_join_causas["sexo_id"] == 3) | (dataframeResultado_join_causas["sexo_id"] == 9))).sum()
 elementos = len(dataframeResultado_join_causas)
 
-print(desconocidos1)
-print(desconocidos2)
-print("Total", desconocidos1+desconocidos2)
-print("Desconocidos", desconocido_e_indefinido)
-print("Desconocidos2", desconocido_e_indefinido2)
-print("sexo indefinido:", sexo_indef)
-
-print("filas", elementos)
-
 # Sumando todo junto 5441 + 14353 no llegan a ser el 2.5% (son el 2.34%) del total de las 825765 filas de la tabla. Puedo eliminar esos datos sin perder informacion relevante del modelo.
 
 #%%
@@ -130,13 +119,11 @@ columnas_validas = ['categoria', 'anio',
 
 # Guardo solo las columnas que me interesan
 df_limpio = dataframeResultado_sin_indefiniciones[columnas_validas].copy()
-print(df_limpio)
 
 #%%
 
 # Noto que hay rango etario indefinido
 rango_etario_desconocido = (df_limpio["rango_etario"] == "06.Sin especificar").sum()
-print(rango_etario_desconocido)
 
 # Lo elimino porque sumando todos los datos indefinidos solo representa el 3.1% del total de filas del set de datos para defunciones.
 
@@ -475,7 +462,7 @@ consultaSQL = """
                 THEN '75 y más'
             ELSE p.rango_etario
             
-            END AS "Grupo etario",
+            END AS "Grupo Etario",
 
             SUM(CASE WHEN p.anio = 2010 AND p.tiene_cobertura = 1 
                 THEN p.cantidad
@@ -501,8 +488,8 @@ consultaSQL = """
 
             INNER JOIN provincias AS pr
             ON p.id_prov = pr.id_prov
-            GROUP BY pr.nombre, "Grupo etario"
-            ORDER BY pr.nombre, "Grupo etario";
+            GROUP BY pr.nombre, "Grupo Etario"
+            ORDER BY pr.nombre, "Grupo Etario";
 """
 
 
@@ -550,7 +537,454 @@ dataframeResultado.to_csv(os.path.join(directorio_script, "Reportes/Establecimie
 
 #%%
 
-# CODIGOS ZOEEEE
+# Cargo Archivos
+
+archivo_def = os.path.join(directorio_script, "TablasModelo/Defuncion.csv")
+archivo_depto = os.path.join(directorio_script, "TablasModelo/Departamento.csv")
+archivo_establecimiento = os.path.join(directorio_script, "TablasModelo/Establecimiento.csv")
+archivo_pob = os.path.join(directorio_script, "TablasModelo/Poblacion.csv")
+archivo_prov = os.path.join(directorio_script, "TablasModelo/Provincia.csv")
+
+defunciones       = pd.read_csv(archivo_def) 
+departamento       = pd.read_csv(archivo_depto) 
+establecimiento       = pd.read_csv(archivo_establecimiento) 
+poblacion      = pd.read_csv(archivo_pob) 
+provincia      = pd.read_csv(archivo_prov)
+
+
+
+#%%
+
+# Limpio los rangos etarios
+consulta_preparacion = """
+    SELECT 
+        CASE
+            WHEN rango_etario LIKE '01%' THEN '0 a 14'
+            WHEN rango_etario LIKE '02%' THEN '15 a 34'
+            WHEN rango_etario LIKE '03%' THEN '35 a 54'
+            WHEN rango_etario LIKE '04%' THEN '55 a 74'
+            WHEN rango_etario LIKE '05%' THEN '75 y mas'
+            ELSE '-1'
+        END AS grupo_etario,
+        sexo,
+        categoria,
+        SUM(cantidad) as cantidad
+    FROM defunciones
+    GROUP BY 1, 2, 3
+    HAVING grupo_etario != '-1'
+"""
+df_base_agrupada = dd.query(consulta_preparacion).df()
+
+#%%
+# Causas mas frecuentes
+
+# 0 a 14
+# 0 a 14
+consulta_mas_f_0_14 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '0 a 14' AND sexo = 'femenino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_f_0_14 = dd.query(consulta_mas_f_0_14).df()
+
+consulta_mas_m_0_14 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '0 a 14' AND sexo = 'masculino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_m_0_14 = dd.query(consulta_mas_m_0_14).df()
+
+# Union inicial
+consulta_mas_acumulado_1 = "SELECT * FROM df_mas_f_0_14 UNION ALL SELECT * FROM df_mas_m_0_14"
+df_mas_acumulado = dd.query(consulta_mas_acumulado_1).df()
+
+# 15 a 34
+consulta_mas_f_15_34 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '15 a 34' AND sexo = 'femenino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_f_15_34 = dd.query(consulta_mas_f_15_34).df()
+
+consulta_mas_acumulado_2 = """
+                    SELECT *
+                    FROM df_mas_acumulado
+                    UNION ALL SELECT * FROM df_mas_f_15_34
+                    """
+df_mas_acumulado = dd.query(consulta_mas_acumulado_2).df()
+
+consulta_mas_m_15_34 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '15 a 34' AND sexo = 'masculino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_m_15_34 = dd.query(consulta_mas_m_15_34).df()
+
+consulta_mas_acumulado_3 = """
+                    SELECT *
+                    FROM df_mas_acumulado
+                    UNION ALL SELECT * FROM df_mas_m_15_34
+                    """
+df_mas_acumulado = dd.query(consulta_mas_acumulado_3).df()
+
+# 35 a 54
+consulta_mas_f_35_54 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '35 a 54' AND sexo = 'femenino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_f_35_54 = dd.query(consulta_mas_f_35_54).df()
+
+consulta_mas_acumulado_4 = """
+                    SELECT *
+                    FROM df_mas_acumulado
+                    UNION ALL SELECT * FROM df_mas_f_35_54
+                    """
+df_mas_acumulado = dd.query(consulta_mas_acumulado_4).df()
+
+consulta_mas_m_35_54 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '35 a 54' AND sexo = 'masculino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_m_35_54 = dd.query(consulta_mas_m_35_54).df()
+
+consulta_mas_acumulado_5 = """
+                    SELECT *
+                    FROM df_mas_acumulado
+                    UNION ALL SELECT * FROM df_mas_m_35_54
+                    """
+df_mas_acumulado = dd.query(consulta_mas_acumulado_5).df()
+
+# 55 a 74
+consulta_mas_f_55_74 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '55 a 74' AND sexo = 'femenino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_f_55_74 = dd.query(consulta_mas_f_55_74).df()
+
+consulta_mas_acumulado_6 = """
+                    SELECT *
+                    FROM df_mas_acumulado
+                    UNION ALL SELECT * FROM df_mas_f_55_74
+                    """
+df_mas_acumulado = dd.query(consulta_mas_acumulado_6).df()
+
+consulta_mas_m_55_74 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '55 a 74' AND sexo = 'masculino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_m_55_74 = dd.query(consulta_mas_m_55_74).df()
+
+consulta_mas_acumulado_7 = """
+                    SELECT *
+                    FROM df_mas_acumulado
+                    UNION ALL SELECT * FROM df_mas_m_55_74
+                    """
+df_mas_acumulado = dd.query(consulta_mas_acumulado_7).df()
+
+# 75 y mas
+consulta_mas_f_75_mas = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '75 y mas' AND sexo = 'femenino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_f_75_mas = dd.query(consulta_mas_f_75_mas).df()
+
+consulta_mas_acumulado_8 = """
+                    SELECT *
+                    FROM df_mas_acumulado
+                    UNION ALL SELECT * FROM df_mas_f_75_mas
+                    """
+df_mas_acumulado = dd.query(consulta_mas_acumulado_8).df()
+
+consulta_mas_m_75_mas = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '75 y mas' AND sexo = 'masculino' 
+            ORDER BY cantidad DESC LIMIT 5
+            """
+df_mas_m_75_mas = dd.query(consulta_mas_m_75_mas).df()
+
+consulta_mas_acumulado_9 = """
+                    SELECT *
+                    FROM df_mas_acumulado
+                    UNION ALL SELECT * FROM df_mas_m_75_mas
+                    """
+df_mas_acumulado = dd.query(consulta_mas_acumulado_9).df()
+
+# Guardar top 5
+consulta_mas_final = """
+    SELECT grupo_etario AS 'Grupo Etario', sexo AS 'Sexo', categoria AS 'Causa de Muerte', cantidad AS 'Número de Defunciones'
+    FROM df_mas_acumulado
+    """
+df_mas_acumulado = dd.query(consulta_mas_final).df()
+
+ruta_salida_mas = os.path.join(directorio_script, "Reportes/CausasMasFrecuentes.csv")
+df_mas_acumulado.to_csv(ruta_salida_mas, index=False)
+
+#%%
+# Causas menos frecuentes
+
+# 0 a 14
+consulta_menos_f_0_14 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '0 a 14' AND sexo = 'femenino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_f_0_14 = dd.query(consulta_menos_f_0_14).df()
+
+consulta_menos_m_0_14 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '0 a 14' AND sexo = 'masculino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_m_0_14 = dd.query(consulta_menos_m_0_14).df()
+
+# Union inicial
+consulta_menos_acumulado_1 = """
+                    SELECT *
+                    FROM df_menos_f_0_14
+                    UNION ALL SELECT * FROM df_menos_m_0_14
+                    """
+df_menos_acumulado = dd.query(consulta_menos_acumulado_1).df()
+
+# 15 a 34
+consulta_menos_f_15_34 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '15 a 34' AND sexo = 'femenino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_f_15_34 = dd.query(consulta_menos_f_15_34).df()
+
+consulta_menos_acumulado_2 = """
+                    SELECT *
+                    FROM df_menos_acumulado
+                    UNION ALL SELECT * FROM df_menos_f_15_34
+                    """
+df_menos_acumulado = dd.query(consulta_menos_acumulado_2).df()
+
+consulta_menos_m_15_34 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '15 a 34' AND sexo = 'masculino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_m_15_34 = dd.query(consulta_menos_m_15_34).df()
+
+consulta_menos_acumulado_3 = """
+                    SELECT *
+                    FROM df_menos_acumulado
+                    UNION ALL SELECT * FROM df_menos_m_15_34
+                    """
+df_menos_acumulado = dd.query(consulta_menos_acumulado_3).df()
+
+# 35 a 54
+consulta_menos_f_35_54 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '35 a 54' AND sexo = 'femenino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_f_35_54 = dd.query(consulta_menos_f_35_54).df()
+
+consulta_menos_acumulado_4 = """
+                    SELECT *
+                    FROM df_menos_acumulado
+                    UNION ALL SELECT * FROM df_menos_f_35_54
+                    """
+df_menos_acumulado = dd.query(consulta_menos_acumulado_4).df()
+
+consulta_menos_m_35_54 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '35 a 54' AND sexo = 'masculino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_m_35_54 = dd.query(consulta_menos_m_35_54).df()
+
+consulta_menos_acumulado_5 = """
+                    SELECT *
+                    FROM df_menos_acumulado
+                    UNION ALL SELECT * FROM df_menos_m_35_54
+                    """
+df_menos_acumulado = dd.query(consulta_menos_acumulado_5).df()
+
+# 55 a 74
+consulta_menos_f_55_74 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '55 a 74' AND sexo = 'femenino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_f_55_74 = dd.query(consulta_menos_f_55_74).df()
+
+consulta_menos_acumulado_6 = """
+                    SELECT *
+                    FROM df_menos_acumulado
+                    UNION ALL SELECT * FROM df_menos_f_55_74
+                    """
+df_menos_acumulado = dd.query(consulta_menos_acumulado_6).df()
+
+consulta_menos_m_55_74 = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '55 a 74' AND sexo = 'masculino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_m_55_74 = dd.query(consulta_menos_m_55_74).df()
+
+consulta_menos_acumulado_7 = """
+                    SELECT *
+                    FROM df_menos_acumulado
+                    UNION ALL SELECT * FROM df_menos_m_55_74
+                    """
+df_menos_acumulado = dd.query(consulta_menos_acumulado_7).df()
+
+# 75 y mas
+consulta_menos_f_75_mas = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '75 y mas' AND sexo = 'femenino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_f_75_mas = dd.query(consulta_menos_f_75_mas).df()
+
+consulta_menos_acumulado_8 = """
+                    SELECT *
+                    FROM df_menos_acumulado
+                    UNION ALL SELECT * FROM df_menos_f_75_mas
+                    """
+df_menos_acumulado = dd.query(consulta_menos_acumulado_8).df()
+
+consulta_menos_m_75_mas = """
+            SELECT * FROM df_base_agrupada 
+            WHERE grupo_etario = '75 y mas' AND sexo = 'masculino' 
+            ORDER BY cantidad ASC LIMIT 5
+            """
+df_menos_m_75_mas = dd.query(consulta_menos_m_75_mas).df()
+
+consulta_menos_acumulado_9 = """
+                    SELECT *
+                    FROM df_menos_acumulado
+                    UNION ALL SELECT * FROM df_menos_m_75_mas
+                    """
+df_menos_acumulado = dd.query(consulta_menos_acumulado_9).df()
+    
+# Guardar ultimas 5
+consulta_menos_final = """
+    SELECT grupo_etario AS 'Grupo Etario', sexo AS 'Sexo', categoria AS 'Causa de Muerte', cantidad AS 'Número de Defunciones'
+    FROM df_menos_acumulado
+    """
+df_menos_acumulado = dd.query(consulta_menos_final).df()
+
+ruta_salida_menos = os.path.join(directorio_script, "Reportes/CausasMenosFrecuentes.csv")
+df_menos_acumulado.to_csv(ruta_salida_menos, index=False)
+
+
+#%%
+# Tasa de mortalidad por provincia
+
+# Esta consulta agrupa las defunciones del año 2022
+# por provincia y rango etario.
+# Se calcula el total de defunciones sumando la columna cantidad.
+
+consulta = """ SELECT 
+    id_prov,
+    rango_etario,
+    anio,
+    SUM(cantidad) AS total_defunciones
+FROM defunciones
+WHERE anio = 2022
+GROUP BY id_prov, rango_etario, anio
+ORDER BY id_prov, rango_etario;
+                """
+
+
+# Esta consulta agrupa la población del año 2022
+# por provincia y rango etario.
+# Se calcula el total de habitantes sumando la columna cantidad.
+
+
+consulta2 = """ SELECT 
+    id_prov,
+    rango_etario,
+    anio,
+    SUM(cantidad) AS total_defunciones
+FROM poblacion
+WHERE anio = 2022
+GROUP BY id_prov, rango_etario, anio
+ORDER BY id_prov, rango_etario;
+                """
+#
+dataframeResultado_mortalidad = dd.query(consulta).df() 
+
+
+
+dataframeResultado_mortalidad_provincia = dd.query(consulta2).df() 
+
+
+
+# uno las defunciones agregadas con la población agregada
+# uno con la tabla provincia para obtener el nombre
+#calculo la tasa de mortalidad cada 1000 habitantes
+
+consulta3 = """ 
+            SELECT  pr.nombre AS Provincia,
+                d.rango_etario, d.total_defunciones * 1000.0 / p.total_defunciones AS tasa_mortalidad
+            FROM dataframeResultado_mortalidad As d
+            JOIN dataframeResultado_mortalidad_provincia As p
+                ON p.id_prov = d.id_prov
+                AND p.rango_etario = d.rango_etario
+            JOIN provincia pr
+                ON pr.id_prov = d.id_prov
+            ORDER BY pr.nombre, d.rango_etario;
+        """
+
+
+dataframeResultado_mortalidad_total_por_provincia = dd.query(consulta3).df()
+
+# Ordeno por rango etario (limpio), y provincia
+consulta4_filtrar_edades = """
+                        SELECT Provincia, 
+                        CASE
+                        WHEN rango_etario LIKE '01%' THEN '0 a 14'
+                        WHEN rango_etario LIKE '02%' THEN '15 a 34'
+                        WHEN rango_etario LIKE '03%' THEN '35 a 54'
+                        WHEN rango_etario LIKE '04%' THEN '55 a 74'
+                        WHEN rango_etario LIKE '05%' THEN '75 y mas'
+                        WHEN rango_etario LIKE '06%' THEN '-1'
+                        END AS 'Grupo Etario',
+                        tasa_mortalidad AS 'Tasa de Mortalidad',
+                        FROM dataframeResultado_mortalidad_total_por_provincia
+                        
+                    """
+
+dataframeResultado_mortalidad_filtrada_edades = dd.query(consulta4_filtrar_edades).df()
+
+ruta_salida = os.path.join(directorio_script, "Reportes/TasaMortalidadPorProvincia.csv")
+dataframeResultado_mortalidad_filtrada_edades.to_csv(ruta_salida, index=False)
+#%% Consulta 5
+# Cambios en las causas de defunción
+
+
+consulta2 = """
+    SELECT 
+    categoria AS 'Causa de Muerte',
+    SUM(CASE WHEN anio = 2010 THEN cantidad ELSE 0 END) AS 'Defunciones en 2010',
+    SUM(CASE WHEN anio = 2022 THEN cantidad ELSE 0 END) AS 'Defunciones en 2022',
+    SUM(CASE WHEN anio = 2022 THEN cantidad ELSE 0 END) - SUM(CASE WHEN anio = 2010 THEN cantidad ELSE 0 END) 
+    AS Diferencia
+    FROM defunciones
+    WHERE anio IN (2010, 2022)
+    GROUP BY categoria
+    ORDER BY diferencia DESC;
+"""
+
+#Suma total de defunciones en el año 2022
+#Suma total de defunciones en el año 2010
+#Diferencia entre 2022 y 2010
+
+
+dataframeResultado_diferencia_2022_2010 = dd.query(consulta2).df()
+
+ruta_salida = os.path.join(directorio_script, "Reportes/Diferencia_2022_2010.csv")
+dataframeResultado_diferencia_2022_2010.to_csv(ruta_salida, index=False)
 
 #%%
 
