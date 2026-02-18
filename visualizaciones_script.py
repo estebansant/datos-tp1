@@ -6,13 +6,6 @@ import seaborn as sns
 # 1. Carga de datos
 df_pob = pd.read_csv('Poblacion.csv')
 df_prov = pd.read_csv('Provincia.csv')
-#Al contrastar los totales del archivo Poblacion.csv 
-#con los datos oficiales del Censo Nacional de Población (INDEC), 
-#observamos que Tierra del Fuego (ID 94) 
-#presenta una suma de 45 millones en 2022, 
-#mientras que el valor oficial es de 190.695 habitantes. 
-#Esta discrepancia del 23.500% confirma un grave error de carga 
-#de datos
 df_pob = df_pob.rename(columns={'anio': 'Año'})
 
 

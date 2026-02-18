@@ -21,7 +21,7 @@ poblacion = pd.read_csv(archivo_poblacion)
 
 #%%
 
-
+# Lo que hago es una unica consulta SQL para renombrar los rangos etarios a un valor mas comodo y entendible, sumo por cada caso y agrupo en columnas nuevas
 consultaSQL = """
             SELECT pr.nombre AS Provincia,
             
